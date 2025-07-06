@@ -1,4 +1,4 @@
-﻿// #define DEBUG
+﻿// #define DEBUG_SOURCE
 // uncomment this to enable debug mode, the dotnet build command
 // will freeze until you attach a debugger
 
@@ -20,7 +20,7 @@ internal class CustomGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        #if DEBUG
+        #if DEBUG_SOURCE
         if (!Debugger.IsAttached)
         {
             while (!Debugger.IsAttached)
@@ -187,7 +187,7 @@ internal class CustomGenerator : IIncrementalGenerator
             var type = typeInfo.Type;
             if (type == null)
             {
-                spc.Log($"Can't get type info of anolymous initialization {arg.GetText()}");
+                spc.LogWarning($"Can't get type info of anolymous initialization {arg.GetText()}");
                 return null;
             }
 

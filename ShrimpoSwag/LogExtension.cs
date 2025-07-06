@@ -4,11 +4,11 @@ namespace ShrimpoSwag
 {
     internal static class LogExtension
     {
-        public static void Log(this SourceProductionContext context, string message)
+        public static void LogWarning(this SourceProductionContext context, string message)
         {
             var descriptor = new DiagnosticDescriptor(
                 id: "SG0001",
-                title: "Source Generator Log",
+                title: "ShrimpoSwag Log",
                 messageFormat: message,
                 category: "SourceGenerator",
                 DiagnosticSeverity.Warning,
