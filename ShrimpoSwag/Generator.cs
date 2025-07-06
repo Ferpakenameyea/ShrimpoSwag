@@ -1,4 +1,4 @@
-﻿// #define DEBUG_SOURCE
+﻿#define DEBUG_SOURCE
 // uncomment this to enable debug mode, the dotnet build command
 // will freeze until you attach a debugger
 
@@ -202,10 +202,18 @@ internal class CustomGenerator : IIncrementalGenerator
                         extraUsing = @namespace;
                     }
 
+                    string typeName = member.Type.ToDisplayString();
+                    if (member.Type.IsAnonymousType)
+                    {
+                        var generatedClass = new AnolymouseSourceGenerator(member.Type).Generate(spc);
+                        typeName = generatedClass.ClassName;
+                        extraUsing = null;
+                    }
+
                     return new Property(
-                        typeName: member.Type.ToDisplayString(),
-                        name: member.MetadataName,
-                        extraUsing: extraUsing);
+                            typeName: typeName,
+                            name: member.MetadataName,
+                            extraUsing: extraUsing);
                 });
             result.Properties.AddRange(propertyQuery);
         }

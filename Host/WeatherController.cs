@@ -55,6 +55,7 @@ public partial class WeatherController : ControllerBase
         {
             Item1 = 1,
             Item2 = 2,
+            Anolymous = new { Item = 1, Temperature = 2 },
         });
     }
 }
