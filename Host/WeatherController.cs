@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Host.Personal;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +46,8 @@ public partial class WeatherController : ControllerBase
             {
                 Item1 = 1,
                 Item2 = 2,
-                Schema = new UserDefiendObject()
+                Schema = new UserDefiendObject(),
+                Array = new UserDefiendObject[5]
             });
         }
 
@@ -56,6 +58,8 @@ public partial class WeatherController : ControllerBase
             Item1 = 1,
             Item2 = 2,
             Anolymous = new { Item = 1, Temperature = 2 },
+            Array = new int[] { 1, 2, 3 },
+            AnolymousArray = Enumerable.Range(0, 10).Select(i => new { Index = 1 })
         });
     }
 

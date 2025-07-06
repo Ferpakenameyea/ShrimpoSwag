@@ -1,4 +1,4 @@
-﻿// #define DEBUG_SOURCE
+﻿#define DEBUG_SOURCE
 // uncomment this to enable debug mode, the dotnet build command
 // will freeze until you attach a debugger
 
@@ -230,9 +230,14 @@ internal class CustomGenerator : IIncrementalGenerator
                             typeName = generatedClass.ClassName;
                             extraUsing = null;
                         }
-                        else if (EnumerableUtil.IsEnumerableType(type, out var elementType) && elementType != null)
+                        else if (EnumerableUtil.IsEnumerableType(member.Type, out var elementType) && elementType != null)
                         {
-                            // TODO: handle enumerable member
+                            if (elementType.IsAnonymousType)
+                            {
+                                var generatedClass = new AnolymouseSourceGenerator(elementType).Generate(spc);
+                                typeName = generatedClass.ClassName + "[]";
+                                extraUsing = null;
+                            }
                         }
 
                         return new Property(
