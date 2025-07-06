@@ -1,4 +1,4 @@
-﻿#define DEBUG_SOURCE
+﻿// #define DEBUG_SOURCE
 // uncomment this to enable debug mode, the dotnet build command
 // will freeze until you attach a debugger
 
@@ -73,16 +73,23 @@ internal class CustomGenerator : IIncrementalGenerator
                     var dtoSourceGenerator = new DtoSourceGenerator();
                     foreach (var returnType in returnTypes)
                     {
-                        var dto = dtoSourceGenerator.GenerateDto(
-                            returnType: returnType,
-                            controllerName: controllerName,
-                            methodName: method.Name,
-                            @namespace: controllerNamespace
-                        );
+                        if (returnType.IsRawEnumerable)
+                        {
+                            source.AppendLine($"\t[ProducesResponseType({returnType.StatusCode}, Type = typeof({returnType.EnumerableTypeName}[]))]");
+                        }
+                        else
+                        {
+                            var dto = dtoSourceGenerator.GenerateDto(
+                                returnType: returnType,
+                                controllerName: controllerName,
+                                methodName: method.Name,
+                                @namespace: controllerNamespace
+                            );
 
-                        spc.AddDto(dto);
+                            spc.AddDto(dto);
 
-                        source.AppendLine($"\t[ProducesResponseType({returnType.StatusCode}, Type = typeof({dto.DtoClassName}))]");
+                            source.AppendLine($"\t[ProducesResponseType({returnType.StatusCode}, Type = typeof({dto.DtoClassName}))]");
+                        }
                     }
 
                     source.Append('\t');
@@ -191,31 +198,50 @@ internal class CustomGenerator : IIncrementalGenerator
                 return null;
             }
 
-            var propertyQuery = type.GetMembers()
-                .OfType<IPropertySymbol>()
-                .Select(member =>
+            if (EnumerableUtil.IsEnumerableType(type, out var elementType) && elementType != null)
+            {
+                if (elementType.IsAnonymousType)
                 {
-                    var @namespace = member.ContainingNamespace.ToDisplayString();
-                    string? extraUsing = null;
-                    if (NamespaceUtil.NamespaceNeedsUsing(@namespace))
+                    var generatedClass = new AnolymouseSourceGenerator(elementType).Generate(spc);
+                    result.EnumerableTypeName = generatedClass.ClassName;
+                }
+                else
+                {
+                    result.EnumerableTypeName = elementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                }
+            }
+            else
+            {
+                var propertyQuery = type.GetMembers()
+                    .OfType<IPropertySymbol>()
+                    .Select(member =>
                     {
-                        extraUsing = @namespace;
-                    }
+                        var @namespace = member.ContainingNamespace.ToDisplayString();
+                        string? extraUsing = null;
+                        if (NamespaceUtil.NamespaceNeedsUsing(@namespace))
+                        {
+                            extraUsing = @namespace;
+                        }
 
-                    string typeName = member.Type.ToDisplayString();
-                    if (member.Type.IsAnonymousType)
-                    {
-                        var generatedClass = new AnolymouseSourceGenerator(member.Type).Generate(spc);
-                        typeName = generatedClass.ClassName;
-                        extraUsing = null;
-                    }
+                        string typeName = member.Type.ToDisplayString();
+                        if (member.Type.IsAnonymousType)
+                        {
+                            var generatedClass = new AnolymouseSourceGenerator(member.Type).Generate(spc);
+                            typeName = generatedClass.ClassName;
+                            extraUsing = null;
+                        }
+                        else if (EnumerableUtil.IsEnumerableType(type, out var elementType) && elementType != null)
+                        {
+                            // TODO: handle enumerable member
+                        }
 
-                    return new Property(
-                            typeName: typeName,
-                            name: member.MetadataName,
-                            extraUsing: extraUsing);
-                });
-            result.Properties.AddRange(propertyQuery);
+                        return new Property(
+                                    typeName: typeName,
+                                    name: member.MetadataName,
+                                    extraUsing: extraUsing);
+                    });
+                result.Properties.AddRange(propertyQuery);
+            }
         }
 
         return result;

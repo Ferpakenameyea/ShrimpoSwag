@@ -8,6 +8,8 @@ namespace ShrimpoSwag
     {
         public int StatusCode { get; } = statusCode;
         public List<Property> Properties { get; } = [];
+        public bool IsRawEnumerable => EnumerableTypeName is not null;
+        public string? EnumerableTypeName { get; set; }
     }
 
     internal class Property(string typeName, string name, string? extraUsing = null)

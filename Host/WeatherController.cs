@@ -58,6 +58,24 @@ public partial class WeatherController : ControllerBase
             Anolymous = new { Item = 1, Temperature = 2 },
         });
     }
+
+    [HttpGet]
+    [Route("ienumrable")]
+    public partial IActionResult GetIEnumerable()
+    {
+        return Ok(new List<int>[] {
+            [1, 2, 3],
+            [4, 5, 6]
+        });
+    }
+
+    [HttpGet]
+    [Route("ienumrable-of-anonymous")]
+    public partial IActionResult GetIEnumerableOfAnonymous()
+    {
+        var list = Enumerable.Range(1, 5).Select(i => new { Index = i });
+        return Ok(list);
+    }
 }
 
 
