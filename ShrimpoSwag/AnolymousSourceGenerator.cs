@@ -3,16 +3,19 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-internal class AnolymouseSourceGenerator(ITypeSymbol typeSymbol)
+internal class AnonymousSourceGenerator(ITypeSymbol typeSymbol)
 {
     private Guid id = Guid.NewGuid();
-    private string ClassName => $"AnolymousClass_{id:N}";
+    private string ClassName => $"AnonymousClass_{id:N}";
     private string SourceFileName => $"{ClassName}.g.cs";
     private readonly ITypeSymbol typeSymbol = typeSymbol;
 
-    public GeneratedAnolymousClassInfo Generate(SourceProductionContext spc)
+    public GeneratedAnonymousClassInfo Generate(SourceProductionContext spc)
     {
         var builder = new StringBuilder();
+        builder.AppendLine($"namespace {Constant.GeneratedClassNamespace};");
+        builder.AppendLine();
+
         builder.AppendLine($"public class {ClassName}");
         builder.AppendLine("{");
         foreach (var property in typeSymbol.GetMembers().OfType<IPropertySymbol>())
@@ -21,7 +24,7 @@ internal class AnolymouseSourceGenerator(ITypeSymbol typeSymbol)
             string propertyType = property.Type.ToDisplayString();
             if (property.Type.IsAnonymousType)
             {
-                var propertyInfo = new AnolymouseSourceGenerator(property.Type).Generate(spc);
+                var propertyInfo = new AnonymousSourceGenerator(property.Type).Generate(spc);
                 propertyType = propertyInfo.ClassName;
             }
 
@@ -30,11 +33,11 @@ internal class AnolymouseSourceGenerator(ITypeSymbol typeSymbol)
 
         builder.AppendLine("}");
         spc.AddSource(SourceFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
-        return new GeneratedAnolymousClassInfo(ClassName);
+        return new GeneratedAnonymousClassInfo(ClassName);
     }
 }
 
-internal class GeneratedAnolymousClassInfo(string className)
+internal class GeneratedAnonymousClassInfo(string className)
 {
     public string ClassName { get; } = className;
 }

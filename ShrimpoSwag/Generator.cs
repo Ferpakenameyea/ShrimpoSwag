@@ -20,7 +20,7 @@ internal class CustomGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        #if DEBUG_SOURCE
+#if DEBUG_SOURCE
         if (!Debugger.IsAttached)
         {
             while (!Debugger.IsAttached)
@@ -29,7 +29,7 @@ internal class CustomGenerator : IIncrementalGenerator
             }
             Debugger.Break();
         }
-        #endif
+#endif
 
         var classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
@@ -60,6 +60,7 @@ internal class CustomGenerator : IIncrementalGenerator
 
                 var source = new StringBuilder($$"""
                     using Microsoft.AspNetCore.Mvc;
+                    using {{Constant.GeneratedClassNamespace}};
 
                     {{NamespaceUtil.GetNameSpaceDeclaration(controllerNamespace)}}
 
@@ -194,7 +195,7 @@ internal class CustomGenerator : IIncrementalGenerator
             var type = typeInfo.Type;
             if (type == null)
             {
-                spc.LogWarning($"Can't get type info of anolymous initialization {arg.GetText()}");
+                spc.LogWarning($"Can't get type info of anonymous initialization {arg.GetText()}");
                 return null;
             }
 
@@ -202,7 +203,7 @@ internal class CustomGenerator : IIncrementalGenerator
             {
                 if (elementType.IsAnonymousType)
                 {
-                    var generatedClass = new AnolymouseSourceGenerator(elementType).Generate(spc);
+                    var generatedClass = new AnonymousSourceGenerator(elementType).Generate(spc);
                     result.EnumerableTypeName = generatedClass.ClassName;
                 }
                 else
@@ -226,7 +227,7 @@ internal class CustomGenerator : IIncrementalGenerator
                         string typeName = member.Type.ToDisplayString();
                         if (member.Type.IsAnonymousType)
                         {
-                            var generatedClass = new AnolymouseSourceGenerator(member.Type).Generate(spc);
+                            var generatedClass = new AnonymousSourceGenerator(member.Type).Generate(spc);
                             typeName = generatedClass.ClassName;
                             extraUsing = null;
                         }
@@ -234,7 +235,7 @@ internal class CustomGenerator : IIncrementalGenerator
                         {
                             if (elementType.IsAnonymousType)
                             {
-                                var generatedClass = new AnolymouseSourceGenerator(elementType).Generate(spc);
+                                var generatedClass = new AnonymousSourceGenerator(elementType).Generate(spc);
                                 typeName = generatedClass.ClassName + "[]";
                                 extraUsing = null;
                             }

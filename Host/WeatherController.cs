@@ -57,9 +57,9 @@ public partial class WeatherController : ControllerBase
         {
             Item1 = 1,
             Item2 = 2,
-            Anolymous = new { Item = 1, Temperature = 2 },
+            Anonymous = new { Item = 1, Temperature = 2 },
             Array = new int[] { 1, 2, 3 },
-            AnolymousArray = Enumerable.Range(0, 10).Select(i => new { Index = 1 })
+            AnonymousArray = Enumerable.Range(0, 10).Select(i => new { Index = 1 })
         });
     }
 

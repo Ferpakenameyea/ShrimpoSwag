@@ -33,6 +33,9 @@ internal class DtoSourceGenerator
         }
         dtoSource.AppendLine();
 
+        dtoSource.AppendLine($"namespace {Constant.GeneratedClassNamespace};");
+        dtoSource.AppendLine();
+
         dtoSource.AppendLine($"public class {dtoClassName}");
         dtoSource.AppendLine("{");
         dtoSource.AppendLine("#pragma warning disable CS8618");
